@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+ 
+	 <!---------------------------------------------------------------------------------
+	Genating 4D-Neural Netwerk v0.8						2026/Nov.
+						© 2026 bobie820g@gmail.com 	M.Amano & T.O.
+						Released under the MIT license
+						https://opensource.org/licenses/mit-license.php 
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.0.1/math.js"></script>
+			<script src="https://unpkg.com/mathjs@11.4.0/lib/browser/math.js"></script>
+-------------------------------------------------------------------------------------!>	
+<head>
+    <meta charset="utf-8">
+    <title>dendritic 4D neural network</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <style>
+	h1 {text-align: center;}
+	p {text-align: center;}
+	dv {text-align:  margin:500px;}
+	div.r { text-align: right;} 
+ </style>
+</head>
+<body>
+<div style="margin : 30px">
+<h1>
+	Generating 4D Dendrite Network program
+</h1>
+<h2><p>
+ GDN4D for Iris Dataset</h2></p>
+ <div class="r">Nov. 2026 @M.Amano<br>
+Click
+ <a href="https://gdn809.github.io/GDN4d/">GDN4D_Iris</a><br>
+ See also <a href="https://gdn809.github.io/GDN/index.html">GDN_MNIST</a></div><br>
+ 
+In deep learning, the hidden layers rely fundamentally on "one-to-many" mappings for both input processing and learning. 
+Because the weight space generated through backpropagation is probabilistic, the process not only requires a vast number
+ of parameters and massive amounts of data, but also yields unpredictable results.
+<br><br>
+Biological neural networks are formed through many-to-one mappings; they lack a mechanism equivalent to backpropagation
+ and do not require vast amounts of training data. 
+ <br>Information is also stored within the physical structure of dendrites, which branch out much like the limbs of a tree.
+Learning involves not only changes in the strength of synaptic connections, but also the formation of new branches 
+and the pruning of existing ones.
+<br>
+<img src="fig11.png" width="80%" height="80%"><br>
+We extended the hypothesis—that a certain type of "spatial field" originating from axon terminals induces the formation
+ and activation of dendrites—into four dimensions, and tested it using the "Iris dataset," 
+ which is the most fundamental and small-scale dataset.
+<br> 
+<br> This program (GDN4D) maps the four measurements from the Iris dataset as points in a 4D space. 
+GDN4D plots all the data—consisting of 50 points for each of the three species—into this 4D space. 
+<br>Since humans cannot perceive 4D space, the four measured variables ('SepalLength', 'SepalWidth', 'PetalLength',
+ and 'PetalWidth') are displayed across a 3D space defined by (x, y, z) and a 3D' space defined by (-x, y, w). 
+ <br>GDN4D then uses five randomly selected data points from each of the three species ("setosa", "versicolor",
+ and "virginica") as training samples within this 4D space to generate three dendritic structures.
+The recognition rate for the remaining 85 data points—excluding the 15 points used for training—reached approximately 95%.
+ <br><br>
+
+<img src="Fig3.jpg" width="40%" height="40%"></img>
+ <img src="Fig1.jpg" width="50%" height="50%" style="border: 1px solid #333333;"></img>
+
+
+
+<h3>The “spatial field” that attracts dendrites</h3>
+Based on the following hypothesis, GDN automatically generates dendrites extending toward axon terminals.<br>
+
+<br>&nbsp;a) An activated axon terminal (Data Point) forms a kind of dendritic attraction field around itself.
+
+<br>&nbsp;b) The strength of this field follows the principle of 
+superposition and is inversely proportional to the square of the distance.
+
+<br>&nbsp;c) First, Dendrites extend from the “growth origin” (Soma) along the potential gradient.
+
+<br>&nbsp;d) When the tip of a dendrite forms a synaptic connection with an upstream axon terminal 
+the electric field it had been generating disappears.
+
+<br>&nbsp;e) Then, a new growth point (Node) forms on the axon—at the location where the updated field strength is 
+highest—and elongation begins once again.<br>
+
+<br>&nbsp;F) Even if the axon terminal is located in a 4D space, the dendrites are generated
+ in the same way.<br>
+
+<br>
+<img src="fig22.png" width="80%" height="100%"></img>
+<video width="200" height="200" controls> <source src="DDR.mp4" type="video/mp4"  ></video>
+
+<h3>Iris Species Dataset and 4D-dendrite network</h3>
+The Iris dataset is a classic multivariate dataset widely used in data science and machine learning. 
+<br>The four measurements in this dataset correspond to points in a 4D space, but they are represented 
+as two 3D components:<br>(x, y, z) = [ 'SepalLength', 'SepalWidth', 'PetalLength' ] and (-x, y, z) = 
+[ 'SepalLength', 'SepalWidth', 'PetalWidth' ].<br>
+( Alternatively, these can be viewed as points on an xy-plane, where x = 0, 1, 2, 3.)
+<br>
+<br>
+GDN4D begins by using the axon tip (soma) as a growth point.<br>
+ It extends a dendrite in the direction of the sum of the 4D vectors pointing toward five sampled data points,
+ establishing this new position as the next growth point.<br>
+ The path is stored as a sequence of coordinates for these growth points. 
+ Once a dendrite reaches a data point, the field generated by that point ceases to exist. 
+ <br>As the number of randomly selected learning targets decreases by one, the overall "spatial field" is altered.<br>
+ <br>
+ At this stage, only a single dendrite exists. Next, for all coordinates stored along the current path, 
+ GDN4D calculate the sum of the vectors pointing toward the remaining data points. 
+ The point where this value is maximized becomes the origin (node) for new growth.
+In other words, a new "branch" will be generated from this point.<br>
+ <br>
+ Above process is repeated until all data points become inactive, resulting in the creation of a "species neuron."
+<br>Then this dendrite-generation process is carried out for each of the three "species". 
+setosa(represented in red), versicolor (green), and virginica (blue).
+<br>The neurons generated in this way reflect the four-dimensional data patterns specific to each "species."<br>
+ <br>
+
+<h3>Recognition and Results</h3>
+Given a 4D data point to be recognized, a potential field is generated.
+ <br>Five dendritic terminals belonging to three cell objects calculate the sum of the "potentials" they receive
+ and output this value as "outV." 
+ <br>The object among the three that yields the highest output value is taken as the recognition result. 
+ <br>The figure below shows the recognition results obtained when applying this method to 135 target data points (excluding those used as training samples).
+<br><br>
+<img src="fig2.jpg" width="80%" height="80%" style="border: 1px solid #333333;" ></img>
+
+end
+</div>
+</body>
+</html>
