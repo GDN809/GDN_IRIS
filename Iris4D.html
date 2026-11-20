@@ -1,0 +1,156 @@
+<!-----------Generate 4D Dendrites Network for Iris Dataset --------------------
+ *                                            © 2026 bobie820g@gmail.com 	
+ *								              Released under the MIT license
+ *								              https://opensource.org/licenses/mit-license.php
+-------------------------------------------------------------------------------->
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.webgpu.js",
+        "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.webgpu.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/"
+      }
+    }
+  </script>
+</head> 
+
+<body>
+<canvas id="canvas-frame" style="position: absolute; top:60px; left:386px; "></canvas>
+
+Load Iris dataset&emsp;
+  <input type="file" id="csvFileInput" accept=".csv"><br><br>
+
+  <button id="Learn"> Sampling the Data </button><br><br>
+  <button id="GDN4D"> Generate 4D Dendrites </button><br><br>
+  <button id="Recg"> Recognize data except sampled </button><br>
+
+ --- result ---<br>
+   <textArea id="Res" cols="48" rows="34" bold></textArea>
+
+<script type="module">
+import * as THREE from "three/webgpu";   
+import { lineTo,dot,sphere,sphereVec } from './js/initGrModelGM.js' 
+import { Cell } from './js/cell.js'
+
+
+var irData = [], irSpec = [], pts = [], Irh = [], sm =[], mk0 = [], mk1 = [], mk2 = []          
+ // irData = ['Id', 'SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm', 'Species']
+
+window.mt = [], window.h = new THREE.Vector4(0,0,0,0), window.tn, 
+window.spn = 5    // --- Number of sample data ---
+
+document.getElementById('csvFileInput').addEventListener('change', async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const text = await file.text();   // Split by line breaks, then split by commas
+  const csvArray = text.trim().split(/\r?\n/).map(row => row.split(','));
+  for ( let i = 0; i<csvArray.length; i++ ) {
+    irSpec.push( Number( csvArray[i][0] ) ); 
+    irData[i] = new Array()
+      for ( let j = 0; j<5; j++ ) { irData[i].push( Number(csvArray[i][j]) ) }
+};    Disp4D() 
+});
+
+function Disp4D() {     //Vector4( irData[i][ ar[0] ], irData[i][ ar[1] ], irData[i][ ar[2] ], irData[i][ ar[3] ]*10 )
+  for ( let i = 0; i<50; i++ ) {
+  let S = new THREE.Vector3( irData[i][ 1 ], irData[i][ 2 ], irData[i][ 3 ] )
+        sphereVec( S, 0.02, 0x0000cc ) ;
+    S = new THREE.Vector3( -irData[i][ 1 ], irData[i][ 2 ], irData[i][ 4 ] )
+        sphereVec( S, 0.02, 0x0000cc ) ;  
+  };
+  //
+  for ( let i = 50; i<100; i++ ) {
+  let S = new THREE.Vector3( irData[i][ 1 ], irData[i][ 2 ], irData[i][ 3 ] )
+        sphereVec( S, 0.02, 0x00cc00 ) ;
+    S = new THREE.Vector3( -irData[i][ 1 ], irData[i][ 2 ], irData[i][ 4 ] )
+       sphereVec( S, 0.02, 0x00cc00 ) ;
+  }
+  for ( let i = 100; i<150; i++ ) {
+  let S = new THREE.Vector3( irData[i][ 1 ], irData[i][ 2 ], irData[i][ 3 ] )
+       sphereVec( S, 0.02, 0xcc0000 ) ;
+    S = new THREE.Vector3( -irData[i][ 1 ], irData[i][ 2 ], irData[i][ 4 ] )
+        sphereVec( S, 0.02, 0xcc0000 ) ;
+  }
+  //
+ }
+ document.getElementById('Learn').addEventListener('click', async (event) => {
+   let mt,mf = -1, S, col;
+   for ( let c=0; c<3; c++ ) { Irh[c] = new Array(); cell[c].init(c) }; 
+
+    for ( let i = 0; i<window.spn; i++ ) {       // sample number of each species
+
+      do { mt = Math.floor( Math.random()*50 );  mf = sm.indexOf(mt) } while ( mf != -1 );  
+      sm.push(mt); col = cell[0].cl;
+        S = new THREE.Vector3(  irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 3 ] ); sphereVec( S, 0.04, col )
+        S = new THREE.Vector3( -irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 4 ] ); sphereVec( S, 0.04, col )
+        window.h[i] = new THREE.Vector4( irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 3 ], irData[mt][ 4 ] );
+        Irh[0][i] = window.h[i];    put2D(mt,col); //console.log(i,mk0)
+
+      do { mt = Math.floor( Math.random()*50 + 50 );  mf = sm.indexOf(mt) } while ( mf != -1 );  
+      sm.push(mt); col = cell[1].cl;
+        S = new THREE.Vector3( irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 3 ] ); sphereVec( S, 0.04, col )
+        S = new THREE.Vector3( -irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 4 ] ); sphereVec( S, 0.04, col )
+        window.h[i] = new THREE.Vector4( irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 3 ], irData[mt][ 4 ] );
+        Irh[1][i] = window.h[i];    put2D(mt,col); //console.log(i,mk1)
+
+      do { mt = Math.floor( Math.random()*50 + 100 );  mf = sm.indexOf(mt) } while ( mf != -1 );  
+      sm.push(mt); col = cell[2].cl;
+        S = new THREE.Vector3( irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 3 ] ); sphereVec( S, 0.04, col )
+        S = new THREE.Vector3( -irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 4 ] ); sphereVec( S, 0.04, col )
+        window.h[i] = new THREE.Vector4( irData[mt][ 1 ], irData[mt][ 2 ], irData[mt][ 3 ], irData[mt][ 4 ] );
+        Irh[2][i] = window.h[i];  put2D(mt,col); //console.log(i,mk2)
+         
+    }; console.log(sm)
+ })
+
+ document.getElementById('GDN4D').addEventListener('click', async (event) => {
+  let spn = window.spn
+  
+  for ( let i=0; i<spn; i++ ) { window.h[i] = Irh[0][i]; window.mt[i] = 1 }; gdr(0,spn)
+  for ( let i=0; i<spn; i++ ) { window.h[i] = Irh[1][i]; window.mt[i] = 1 }; gdr(1,spn)
+  for ( let i=0; i<spn; i++ ) { window.h[i] = Irh[2][i]; window.mt[i] = 1 }; gdr(2,spn)
+ })
+ function gdr(c,n) {  window.tn = n;  cell[c].init(c)
+    do { cell[c].getv() } while ( window.tn != 0 )  //cell[c].getv() == false )
+ }
+
+ document.getElementById('Recg').addEventListener('click', async (event) => {
+    let rc = new Array(), Data, rate = new Array(3), ratek = new Array(3), spc=''
+    let st = 'Id     cell[0] cell[1] cell[2]\tSpecies' + '\n'
+
+    rate.fill(0); ratek.fill(0);    //console.log(mk0)
+    for ( let i=0; i<150; i++ ) { 
+     if ( sm.indexOf(i) == -1 ) { spc='** MisRecog.**'
+      Data = new THREE.Vector4( irData[i][1], irData[i][2], irData[i][3], irData[i][4] )
+      if ( mk0.indexOf(i)==-1 ) { rc[0] = cell[0].outV( Data ) } //cell[0].somaL.material.color.setHSL( 0, 0.5, rc[0]  )	}  // blue
+      if ( mk1.indexOf(i)==-1 ) { rc[1] = cell[1].outV( Data ) } //cell[1].somaL.material.color.setHSL( 0, 0.5, rc[1] )	}   // green
+      if ( mk2.indexOf(i)==-1 ) { rc[2] = cell[2].outV( Data ) } // cell[2].somaL.material.color.setHSL( 0, 0.5, rc[2] )	}   // red
+        const maxVal = Math.max(...rc);
+        const maxIdx = rc.indexOf(maxVal);
+          if      ( i>=0 && i<50 && rc[0]>-1 )    { ratek[0]++; if ( maxIdx==0 ) { rate[0]++; spc='setosa' } } 
+          else if ( i>=50 && i<100 && rc[1]>-1 )  { ratek[1]++; if ( maxIdx==1 ) { rate[1]++; spc='versicolor' } } 
+          else if ( i>=100 && i<150 && rc[2]>-1 ) { ratek[2]++; if ( maxIdx==2 ) { rate[2]++; spc='virginica' } } 
+      st = st + i +' : \t'+ rc[0].toFixed(2) 
+              + '\t'+ rc[1].toFixed(2) + '\t'+ rc[2].toFixed(2) +'\t'+ maxIdx + ' '+ spc + '\n'
+      } 
+      else { st = st +i + ' : ------- Sampled data ----------- '+ '\n' }
+          
+    }
+    document.getElementById("Res").value = st + '\n' + ' Recg Rate = '
+        + ((rate[0]+rate[1]+rate[2])/( ratek[0]+ratek[1]+ratek[2] )).toFixed(3) 
+ })
+
+ function put2D(m,c) {
+      sphere( 0, irData[m][1], 0, 0.05, c ); sphere( 1, irData[m][2], 0, 0.05, c );
+      sphere( 2, irData[m][3], 0, 0.05, c ); sphere( 3, irData[m][4], 0, 0.05, c );
+ }
+
+let cell =[] 
+for ( let c=0; c<3; c++ ) { cell[c] = new Cell;   }
+ 
+  //ctx.fillText("Hello world", 10, 50);
+</script>
+</html>
